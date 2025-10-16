@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand & Type Catalog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Styles for Layout and Modal */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .main-container {
+            position: relative;
+            background-color: #fff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 64rem;
+            display: flex;
+            flex-direction: column; 
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row; 
+            }
+            /* Fixes the alphabetical bar position on larger screens */
+            .alphabet-buttons-fixed {
+                position: sticky;
+                top: 1rem;
+                align-self: flex-start;
+                height: fit-content;
+                order: 2; 
+            }
+            .main-content {
+                order: 1; 
+            }
+        }
+
+        /* Mobile Adjustments for Alphabet Grid */
+        #alphabetButtons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 0.25rem;
+        }
+        @media (min-width: 480px) {
+            #alphabetButtons {
+                grid-template-columns: repeat(9, 1fr);
+            }
+        }
+        @media (min-width: 768px) {
+             #alphabetButtons {
+                grid-template-columns: 1fr; /* Stacked vertically on tablet/desktop */
+            }
+        }
+
+        /* Full-screen image modal with Slider Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 100%;
+            max-width: 90vw;
+            height: 100%;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-slider-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .slide-item {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .slide-item.active {
+            opacity: 1;
+            position: relative; /* Bring the active slide to the front */
+        }
+        
+        .modal-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            z-index: 110;
+        }
+        .modal-nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        #prevSlideBtn { left: 1rem; }
+        #nextSlideBtn { right: 1rem; }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 0.75rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            z-index: 120;
+        }
+
+        .modal-close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <div class="main-container">
+        
+        <div class="w-full md:w-16 flex flex-row md:flex-col justify-center items-center md:items-start gap-1 p-2 md:p-4 rounded-xl bg-gray-50 alphabet-buttons-fixed">
+            <div id="alphabetButtons">
+                </div>
+        </div>
+
+        <div class="flex-grow main-content">
+            <header class="text-center mb-6">
+ <h1 class="text-4xl font-extrabold mb-0" style="font-family: 'Varela Round', sans-serif; color: #3B628F;">CAFOLI</h1>
+    
+<p class="text-lg  mt-0 mb-4" style="font-family: 'Varela Round', sans-serif; letter-spacing: 0.1em; color: #3B628F;">L I F E C A R E</p>
+                <p class="text-lg text-gray-500">Search will filter by **Item Brands** (e.g., enter 'a' for all 'Alpha' items).</p>
+            </header>
+
+            <div class="mb-6 relative">
+                <input type="text" id="searchInput" placeholder="Search by brand only..."
+                    class="w-full px-5 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-lg pr-12">
+                <button id="clearSearchBtn" class="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors duration-200 focus:outline-none hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="catalogContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+            <div id="statusMessage" class="text-center mt-8 text-gray-500 text-lg">
+                <p id="loadingMessage">Loading data...</p>
+                <p id="noResultsMessage" class="hidden">No results found. Try a different search term.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="imageModal" class="modal-overlay hidden">
+        <button id="closeModalBtn" class="modal-close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="modal-content">
+            <div id="sliderWrapper" class="relative w-full h-full flex justify-center items-center">
+            </div>
+            
+            <button id="prevSlideBtn" class="modal-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <button id="nextSlideBtn" class="modal-nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+
+            <div id="sliderIndicators" class="absolute bottom-4 flex space-x-2 z-110">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State and Constants ---
+        
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const catalogContainer = document.getElementById('catalogContainer');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+        const alphabetButtonsContainer = document.getElementById('alphabetButtons');
+        
+        // Modal/Slider Elements
+        const imageModal = document.getElementById('imageModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const sliderWrapper = document.getElementById('sliderWrapper');
+        const prevSlideBtn = document.getElementById('prevSlideBtn');
+        const nextSlideBtn = document.getElementById('nextSlideBtn');
+        const sliderIndicators = document.getElementById('sliderIndicators');
+
+        let allItems = [];
+        let activeLetter = null; 
+        
+        let currentSlideIndex = 0;
+        let currentImages = []; 
+
+        const PLACEHOLDER_TEXT = 'IF IMAGE URL IS NOT PLACED';
+        const FALLBACK_URL = 'https://placehold.co/400x200/e5e7eb/4b5563?text=Image+Load+Error';
+
+        // --- Core Data Functions ---
+
+        function parseCSV(csv) {
+            const lines = csv.split('\n').filter(line => line.trim() !== '');
+            const data = [];
+            
+            const headers = ['brand', 'type', 'imageUrl', 'imageDescUrl', 'imageAditionUrl', 'additionalUrl']; 
+
+            // Find the actual header line and skip it
+            let headerLine = lines.find(line => line.trim().toUpperCase().startsWith('BRAND'));
+            let dataLines = headerLine ? lines.slice(lines.indexOf(headerLine) + 1) : lines;
+
+            for (let i = 0; i < dataLines.length; i++) {
+                const values = dataLines[i].split(',').map(val => val.replace(/['"]+/g, '').trim());
+                if (values.length < headers.length) continue; 
+                
+                const item = {};
+                // Aggressively TRIM and LOWERCASE the data upon parsing for reliable filtering/sorting
+                item[headers[0]] = values[0] ? values[0].toLowerCase().trim() : ''; 
+                item[headers[1]] = values[1] ? values[1].toLowerCase().trim() : ''; 
+                
+                // Keep URLs/instruction text case-sensitive for display and specific matching
+                item[headers[2]] = values[2] ? values[2].trim() : ''; 
+                item[headers[3]] = values[3] ? values[3].trim() : '';
+                item[headers[4]] = values[4] ? values[4].trim() : ''; 
+                item[headers[5]] = values[5] ? values[5].trim() : ''; 
+
+                data.push(item);
+            }
+            return data.filter(item => item.brand && item.brand.length > 0); // Only keep items with a brand
+        }
+
+        // --- Core UI Functions ---
+
+        function displayItems(items) {
+            catalogContainer.innerHTML = '';
+            
+            if (items.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-gray-50 p-6 rounded-xl shadow-md transform transition-transform duration-300 hover:scale-105 hover:shadow-lg';
+
+                    const rawImageUrl = item.imageUrl.trim();
+                    
+                    // Displaying the data with Title Case for aesthetics
+                    const brandDisplay = item.brand.split(' ').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+                    const typeDisplay = item.type.split(' ').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ');
+
+                    let imageSource;
+                    
+                    // Logic to set the primary card image source (using branded placeholder if needed)
+                    if (!rawImageUrl || rawImageUrl.toUpperCase().includes(PLACEHOLDER_TEXT.toUpperCase())) {
+                        const placeholderText = encodeURIComponent(brandDisplay + ' & ' + typeDisplay);
+                        imageSource = `https://placehold.co/400x200/e5e7eb/4b5563?text=${placeholderText}`;
+                    } else {
+                        imageSource = rawImageUrl;
+                    }
+
+                    // Collect ALL potential image URLs (even empty ones)
+                    const allImageUrls = [
+                        item.imageUrl,
+                        item.imageDescUrl,
+                        item.imageAditionUrl,
+                        item.additionalUrl
+                    ].map(url => url.trim());
+                    
+                    // Pass brandDisplay, typeDisplay, AND the array of all URLs to the modal function
+                    const imageUrlsString = JSON.stringify(allImageUrls);
+
+
+                    card.innerHTML = `
+                        <img src="${imageSource}" alt="${item.brand}" 
+                            class="w-full h-48 object-cover rounded-t-xl mb-4 cursor-pointer"
+                            onclick='showFullImage("${brandDisplay}", "${typeDisplay}", ${imageUrlsString})'
+                            onerror="this.src='${FALLBACK_URL}';"
+                            data-raw-url="${rawImageUrl}"> 
+                        <h3 class="text-xl font-semibold text-blue-900 mb-1 bg-blue-200">${brandDisplay}</h3>
+                        <p class="text-gray-500">${typeDisplay}</p>
+                    `;
+                    catalogContainer.appendChild(card);
+                });
+            }
+        }
+        
+        function updateActiveLetterButton(newLetter) {
+            document.querySelectorAll('#alphabetButtons button').forEach(button => {
+                button.classList.remove('bg-blue-500', 'text-white');
+                button.classList.add('bg-gray-200', 'text-gray-600', 'hover:bg-gray-300');
+            });
+
+            const targetId = newLetter === null ? 'btn-ALL' : `btn-${newLetter}`;
+            const activeBtn = document.getElementById(targetId);
+            
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-600', 'hover:bg-gray-300');
+                activeBtn.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+            }
+            activeLetter = newLetter;
+        }
+
+        function setupAlphabetButtons() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            // 'All' Button
+            const allBtn = document.createElement('button');
+            allBtn.textContent = 'All';
+            allBtn.id = 'btn-ALL';
+            allBtn.className = `w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-xs font-semibold rounded-full hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500`;
+
+            allBtn.addEventListener('click', () => {
+                searchInput.value = ''; 
+                updateActiveLetterButton(null);
+                handleSearch();
+            });
+            alphabetButtonsContainer.appendChild(allBtn);
+
+            // A-Z Buttons
+            for (let i = 0; i < alphabet.length; i++) {
+                const letter = alphabet[i];
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.id = `btn-${letter}`;
+                
+                button.className = `w-6 h-6 md:w-8 md:h-8 flex items-center justify-center text-xs font-semibold rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500`;
+                
+                button.addEventListener('click', () => {
+                    searchInput.value = ''; 
+                    updateActiveLetterButton(letter);
+                    handleSearch();
+                });
+                alphabetButtonsContainer.appendChild(button);
+            }
+            
+            updateActiveLetterButton(null);
+        }
+
+        // --- Search and Filter Logic ---
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            if (searchTerm) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+
+            let filteredItems = allItems.filter(item => {
+                if (searchTerm.length > 0) {
+                    return item.brand && item.brand.startsWith(searchTerm);
+                }
+                
+                const matchesLetter = activeLetter ? 
+                                      (item.brand && item.brand.startsWith(activeLetter.toLowerCase())) : 
+                                      true;
+                
+                return matchesLetter;
+            });
+
+            filteredItems.sort((a, b) => {
+                const brandComparison = a.brand.localeCompare(b.brand);
+                
+                if (brandComparison !== 0) {
+                    return brandComparison;
+                }
+                
+                const extractNumber = (str) => {
+                    const match = str.match(/(\d+(\.\d+)?)/);
+                    return match ? parseFloat(match[0]) : 0;
+                };
+                
+                const aText = a.type.replace(/[\d\s]+/, '').trim();
+                const bText = b.type.replace(/[\d\s]+/, '').trim();
+
+                const textComparison = aText.localeCompare(bText);
+
+                if (textComparison !== 0) {
+                    return textComparison; 
+                }
+
+                const aNum = extractNumber(a.type);
+                const bNum = extractNumber(b.type);
+                
+                if (aNum !== bNum) {
+                    return aNum - bNum; 
+                }
+                
+                return a.type.localeCompare(b.type);
+            });
+            
+            displayItems(filteredItems);
+        }
+
+        // --- SLIDER Modal Functions ---
+        
+        function changeSlide(direction) {
+            // Hide current slide
+            const currentSlide = document.querySelector(`#sliderWrapper div:nth-child(${currentSlideIndex + 1})`);
+            if (currentSlide) {
+                currentSlide.classList.remove('active');
+            }
+            
+            // Calculate new index
+            currentSlideIndex += direction;
+            
+            // Loop functionality (wraps around)
+            if (currentSlideIndex < 0) {
+                currentSlideIndex = currentImages.length - 1;
+            } else if (currentSlideIndex >= currentImages.length) {
+                currentSlideIndex = 0;
+            }
+            
+            // Show new slide
+            const newSlide = document.querySelector(`#sliderWrapper div:nth-child(${currentSlideIndex + 1})`);
+            if (newSlide) {
+                newSlide.classList.add('active');
+            }
+
+            // Update button visibility (Only show buttons if more than one image)
+            prevSlideBtn.style.display = nextSlideBtn.style.display = (currentImages.length > 1) ? 'block' : 'none';
+
+            // Update indicators
+            document.querySelectorAll('.indicator').forEach((indicator, index) => {
+                indicator.classList.remove('bg-white');
+                indicator.classList.add('bg-gray-500');
+                if (index === currentSlideIndex) {
+                    indicator.classList.add('bg-white');
+                    indicator.classList.remove('bg-gray-500');
+                }
+            });
+        }
+        
+        /**
+         * Opens the full-screen modal with a slider, using brand/type for placeholder fallbacks.
+         * @param {string} brandDisplay - The display-formatted brand name.
+         * @param {string} typeDisplay - The display-formatted type name.
+         * @param {string[]} imageUrls - Array of image URLs from the CSV.
+         */
+        function showFullImage(brandDisplay, typeDisplay, imageUrls) {
+            currentSlideIndex = 0;
+            sliderWrapper.innerHTML = '';
+            sliderIndicators.innerHTML = '';
+
+            // 1. Generate the URL for the branded placeholder image
+            const placeholderText = encodeURIComponent(brandDisplay + ' & ' + typeDisplay);
+            const dynamicPlaceholderUrl = `https://placehold.co/800x600/e5e7eb/4b5563?text=${placeholderText}`;
+            
+            // 2. Filter for ONLY VALID images (skip empty strings and placeholder instructions)
+            let validImages = imageUrls.filter(url => {
+                const trimmedUrl = url.trim();
+                return trimmedUrl && trimmedUrl.toUpperCase() !== PLACEHOLDER_TEXT.toUpperCase();
+            });
+
+            // 3. Set currentImages: If no valid images were found, use the single branded placeholder.
+            if (validImages.length === 0) {
+                currentImages = [dynamicPlaceholderUrl];
+            } else {
+                // If valid images exist, use them and remove duplicates
+                currentImages = validImages.filter((url, index, self) => self.indexOf(url) === index);
+            }
+            
+            // 4. Dynamically create slider elements
+            currentImages.forEach((url, index) => {
+                const slideItem = document.createElement('div');
+                slideItem.className = 'slide-item';
+                
+                const imageTag = `<img src="${url}" class="modal-slider-image" 
+                                    onerror="this.src='${FALLBACK_URL}';"
+                                    alt="Product Image ${index + 1}">`;
+
+                slideItem.innerHTML = imageTag;
+                sliderWrapper.appendChild(slideItem);
+                
+                // Create indicator buttons
+                const indicator = document.createElement('button');
+                indicator.className = 'indicator w-3 h-3 rounded-full transition-colors';
+                indicator.addEventListener('click', () => {
+                    currentSlideIndex = index;
+                    changeSlide(0);
+                });
+                sliderIndicators.appendChild(indicator);
+            });
+            
+            // 5. Show the modal and the first slide
+            imageModal.classList.remove('hidden');
+            changeSlide(0); 
+            
+            // 6. Hide/Show navigation buttons based on image count
+            if (currentImages.length <= 1) {
+                prevSlideBtn.style.display = 'none';
+                nextSlideBtn.style.display = 'none';
+                sliderIndicators.style.display = 'none';
+            } else {
+                prevSlideBtn.style.display = 'block';
+                nextSlideBtn.style.display = 'block';
+                sliderIndicators.style.display = 'flex';
+            }
+        }
+
+        function closeFullImage() {
+            imageModal.classList.add('hidden');
+            sliderWrapper.innerHTML = ''; 
+            sliderIndicators.innerHTML = '';
+            currentImages = [];
+            currentSlideIndex = 0;
+        }
+        
+        window.showFullImage = showFullImage;
+        window.changeSlide = changeSlide;
+
+        // --- Initialization (Uses fetch) ---
+        
+        async function init() {
+            loadingMessage.classList.remove('hidden');
+            loadingMessage.textContent = 'Loading data...';
+            
+            try {
+                // *** Fetch the CSV data from the external file ***
+                const response = await fetch('data.csv');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const csvText = await response.text();
+                
+                allItems = parseCSV(csvText);
+
+                // Initial sort of all items
+                allItems.sort((a, b) => a.brand.localeCompare(b.brand));
+
+                loadingMessage.classList.add('hidden');
+                
+                setupAlphabetButtons();
+                handleSearch(); 
+                
+
+            } catch (error) {
+                console.error("Fetch error:", error);
+                
+                let errorMessage = 'Error loading data.';
+                
+                if (window.location.protocol === 'file:') {
+                    errorMessage = 'Error loading data: Local file fetching is **blocked by browser security**. Please run this page using a **local web server** (e.g., Live Server).';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Error loading data: **data.csv** file not found in the same folder.';
+                } else {
+                    errorMessage = `Error loading data: ${error.message}`;
+                }
+                
+                loadingMessage.textContent = errorMessage;
+                loadingMessage.classList.remove('hidden');
+                
+                // Disable functionality if data fails to load
+                searchInput.disabled = true;
+                alphabetButtonsContainer.innerHTML = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            searchInput.addEventListener('input', () => {
+                updateActiveLetterButton(null); 
+                handleSearch();
+            });
+            
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                updateActiveLetterButton(null);
+                handleSearch();
+            });
+            
+            // Slider/Modal Event Listeners
+            closeModalBtn.addEventListener('click', closeFullImage);
+            imageModal.addEventListener('click', (event) => {
+                if (event.target === imageModal) {
+                    closeFullImage();
+                }
+            });
+            prevSlideBtn.addEventListener('click', () => changeSlide(-1));
+            nextSlideBtn.addEventListener('click', () => changeSlide(1));
+
+            init();
+        });
+    </script>
+
+</body>
+</html>
